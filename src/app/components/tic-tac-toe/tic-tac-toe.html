@@ -1,0 +1,35 @@
+<div class="game-container animate__animated animate__fadeIn">
+  <h1 class="game-title">❌⭕ Tres en Raya</h1>
+  
+  <div class="score-board animate__animated animate__fadeInDown">
+    <div class="score">
+      <span class="player">Jugador X</span>
+      <span class="points">{{ scoreX }}</span>
+    </div>
+    <div class="score">
+      <span class="player">Jugador O</span>
+      <span class="points">{{ scoreO }}</span>
+    </div>
+  </div>
+
+  <div class="status animate__animated animate__pulse" [ngClass]="winner ? 'winner' : ''">
+    {{ status }}
+  </div>
+
+  <div class="board animate__animated animate__zoomIn">
+    @for (cell of cells; track $index) {
+      <button 
+        class="cell" 
+        [class.x]="cell === 'X'" 
+        [class.o]="cell === 'O'"
+        [class.winning]="isWinningCell($index)"
+        (click)="makeMove($index)"
+        [disabled]="cell || winner">
+        <span class="cell-content animate__animated" [class.animate__flipInX]="cell">{{ cell }}</span>
+      </button>
+    }
+  </div>
+
+  <button class="btn animate__animated animate__fadeInUp" (click)="resetGame()">🔄 Nueva Partida</button>
+  <button class="btn secondary animate__animated animate__fadeInUp" (click)="resetScores()">🗑️ Reiniciar Puntuación</button>
+</div>
