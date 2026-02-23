@@ -47,66 +47,84 @@
   </div>
 
   <!-- Pantalla de inicio -->
-  <div class="start-screen" *ngIf="!gameStarted && !gameCompleted">
-    <div class="start-content animate__animated animate__fadeIn">
-      <p>Encuentra todos los pares de emojis</p>
-      <p class="hint">💡 Menos movimientos = más puntos</p>
-      
-      <div class="high-scores" *ngIf="highScore > 0 || bestTime > 0">
-        <div *ngIf="highScore > 0" class="best-score">
-          🏆 Mejor puntuación: <strong>{{ highScore }}</strong>
-        </div>
-        <div *ngIf="bestTime > 0" class="best-time">
-          ⏱️ Mejor tiempo: <strong>{{ formatTime(bestTime) }}</strong>
-        </div>
-      </div>
-      
-      <button class="btn btn-primary" (click)="startGame()">
-        🎮 Jugar
-      </button>
-    </div>
-  </div>
-
-  <!-- Pantalla de victoria -->
-  <div class="victory-screen" *ngIf="gameCompleted">
-    <div class="victory-content animate__animated animate__bounceIn">
-      <h2>🎉 ¡Completado!</h2>
-      
-      <div class="final-stats">
-        <div class="stat-row">
-          <span>Puntuación</span>
-          <strong>{{ score }}</strong>
-        </div>
-        <div class="stat-row">
-          <span>Tiempo</span>
-          <strong>{{ formatTime(timer) }}</strong>
-        </div>
-        <div class="stat-row">
-          <span>Movimientos</span>
-          <strong>{{ moves }}</strong>
-        </div>
-      </div>
-      
-      <div class="records" *ngIf="score >= highScore || timer <= bestTime">
-        <p *ngIf="score >= highScore" class="new-record">🏆 ¡Nuevo Récord!</p>
-        <p *ngIf="timer <= bestTime && bestTime > 0" class="new-record">⚡ ¡Mejor Tiempo!</p>
-      </div>
-      
-      <div class="buttons">
-        <button class="btn btn-primary" (click)="newGame()">
-          🔄 Jugar de nuevo
-        </button>        
-        <button class="btn btn-secondary" (click)="resetGame()">
-          📊 Salir
+  @if (!gameStarted && !gameCompleted) {
+    <div class="start-screen">
+      <div class="start-content animate__animated animate__fadeIn">
+        <p>Encuentra todos los pares de emojis</p>
+        <p class="hint">💡 Menos movimientos = más puntos</p>
+        
+        @if (highScore > 0 || bestTime > 0) {
+          <div class="high-scores">
+            @if (highScore > 0) {
+              <div class="best-score">
+                🏆 Mejor puntuación: <strong>{{ highScore }}</strong>
+              </div>
+            }
+            @if (bestTime > 0) {
+              <div class="best-time">
+                ⏱️ Mejor tiempo: <strong>{{ formatTime(bestTime) }}</strong>
+              </div>
+            }
+          </div>
+        }
+        
+        <button class="btn btn-primary" (click)="startGame()">
+          🎮 Jugar
         </button>
       </div>
     </div>
-  </div>
+  }
+
+  <!-- Pantalla de victoria -->
+  @if (gameCompleted) {
+    <div class="victory-screen">
+      <div class="victory-content animate__animated animate__bounceIn">
+        <h2>🎉 ¡Completado!</h2>
+        
+        <div class="final-stats">
+          <div class="stat-row">
+            <span>Puntuación</span>
+            <strong>{{ score }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Tiempo</span>
+            <strong>{{ formatTime(timer) }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Movimientos</span>
+            <strong>{{ moves }}</strong>
+          </div>
+        </div>
+        
+        @if (score >= highScore || timer <= bestTime) {
+          <div class="records">
+            @if (score >= highScore) {
+              <p class="new-record">🏆 ¡Nuevo Récord!</p>
+            }
+            @if (timer <= bestTime && bestTime > 0) {
+              <p class="new-record">⚡ ¡Mejor Tiempo!</p>
+            }
+          </div>
+        }
+        
+        <div class="buttons">
+          <button class="btn btn-primary" (click)="newGame()">
+            🔄 Jugar de nuevo
+          </button>        
+          <button class="btn btn-secondary" (click)="resetGame()">
+            📊 Salir
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Botones de control -->
-  <div class="controls" *ngIf="gameStarted">
-    <button class="btn btn-secondary" (click)="resetGame()">
-      🔄 Reiniciar
-    </button>
-  </div>
+  @if (gameStarted) {
+    <div class="controls">
+      <button class="btn btn-secondary" (click)="resetGame()">
+        🔄 Reiniciar
+      </button>
+    </div>
+  }
 </div>

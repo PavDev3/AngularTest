@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener } from '@angular/core';
-import { NgClass } from '@angular/common';
 
 interface Position {
   x: number;
@@ -8,7 +7,7 @@ interface Position {
 
 @Component({
   selector: 'app-snake-game',
-  imports: [NgClass, NgStyle],
+  imports: [],
   templateUrl: './snake-game.html',
   styleUrl: './snake-game.scss'
 })
@@ -190,7 +189,8 @@ export class SnakeGame implements OnInit, OnDestroy {
       // Aumentar velocidad cada 50 puntos
       if (this.score % 50 === 0 && this.gameSpeed > 50) {
         this.gameSpeed -= 10;
-        this.stopGame();
+        // Solo limpiar el interval, sin parar el juego
+        clearInterval(this.gameLoop);
         this.gameLoop = setInterval(() => this.update(), this.gameSpeed);
       }
     } else {
