@@ -189,7 +189,8 @@ export class SnakeGame implements OnInit, OnDestroy {
       // Aumentar velocidad cada 50 puntos
       if (this.score % 50 === 0 && this.gameSpeed > 50) {
         this.gameSpeed -= 10;
-        this.stopGame();
+        // Solo limpiar el interval, sin parar el juego
+        clearInterval(this.gameLoop);
         this.gameLoop = setInterval(() => this.update(), this.gameSpeed);
       }
     } else {

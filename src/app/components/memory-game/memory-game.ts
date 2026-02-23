@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 
 interface Card {
   id: number;
@@ -28,6 +28,9 @@ export class MemoryGame implements OnInit {
   private timerInterval: any;
   highScore = 0;
   bestTime = 0;
+  isChecking = false; // Flag para evitar múltiples chequeos
+  
+  constructor(private ngZone: NgZone) {}
   
   ngOnInit(): void {
     this.loadHighScores();
@@ -42,12 +45,10 @@ export class MemoryGame implements OnInit {
   }
   
   saveHighScores(): void {
-    // Guardar si el puntaje es mayor
     if (this.score > this.highScore) {
       this.highScore = this.score;
       localStorage.setItem('memoryHighScore', this.highScore.toString());
     }
-    // Guardar si el tiempo es menor (y no es 0)
     if ((this.bestTime === 0 || this.timer < this.bestTime) && this.timer > 0) {
       this.bestTime = this.timer;
       localStorage.setItem('memoryBestTime', this.bestTime.toString());
@@ -55,17 +56,14 @@ export class MemoryGame implements OnInit {
   }
   
   initializeGame(): void {
-    // Crear pares de cartas
     const cardPairs: Card[] = [];
     this.emojis.forEach((emoji, index) => {
-      // Par 1
       cardPairs.push({
         id: index * 2,
         emoji: emoji,
         isFlipped: false,
         isMatched: false
       });
-      // Par 2
       cardPairs.push({
         id: index * 2 + 1,
         emoji: emoji,
@@ -74,7 +72,6 @@ export class MemoryGame implements OnInit {
       });
     });
     
-    // Barajar
     this.cards = this.shuffle(cardPairs);
     this.flippedCards = [];
     this.matchedPairs = 0;
@@ -83,9 +80,11 @@ export class MemoryGame implements OnInit {
     this.timer = 0;
     this.gameStarted = false;
     this.gameCompleted = false;
+    this.isChecking = false;
     
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
+      this.timerInterval = null;
     }
   }
   
@@ -101,20 +100,21 @@ export class MemoryGame implements OnInit {
   startGame(): void {
     if (this.gameStarted) return;
     this.gameStarted = true;
-    this.timerInterval = setInterval(() => {
-      this.timer++;
-    }, 1000);
+    this.ngZone.runOutsideAngular(() => {
+      this.timerInterval = setInterval(() => {
+        this.ngZone.run(() => {
+          this.timer++;
+        });
+      }, 1000);
+    });
   }
   
   flipCard(card: Card): void {
-    // No permitir voltear si:
-    // - Ya está volteada
-    // - Ya está emparejada
-    // - Ya hay 2 cartas volteadas esperando
-    // - El juego no ha empezado
-    if (card.isFlipped || card.isMatched || this.flippedCards.length >= 2 || !this.gameStarted) {
-      return;
-    }
+    // Evitar múltiples acciones
+    if (this.isChecking) return;
+    if (card.isFlipped || card.isMatched) return;
+    if (this.flippedCards.length >= 2) return;
+    if (!this.gameStarted) return;
     
     // Voltear carta
     card.isFlipped = true;
@@ -128,34 +128,45 @@ export class MemoryGame implements OnInit {
   }
   
   checkMatch(): void {
+    this.isChecking = true;
     const [card1, card2] = this.flippedCards;
     
     if (card1.emoji === card2.emoji) {
       // ¡Match!
-      setTimeout(() => {
-        card1.isMatched = true;
-        card2.isMatched = true;
-        this.flippedCards = [];
-        this.matchedPairs++;
-        
-        // Calcular puntaje: base 100 + bonus por velocidad
-        const basePoints = 100;
-        const timeBonus = Math.max(0, 60 - this.timer);
-        const movesBonus = Math.max(0, 20 - this.moves) * 5;
-        this.score += basePoints + timeBonus + movesBonus;
-        
-        // Verificar si ganó
-        if (this.matchedPairs === this.emojis.length) {
-          this.endGame();
-        }
-      }, 500);
+      this.ngZone.runOutsideAngular(() => {
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            card1.isMatched = true;
+            card2.isMatched = true;
+            this.flippedCards = [];
+            this.isChecking = false;
+            this.matchedPairs++;
+            
+            // Calcular puntaje
+            const basePoints = 100;
+            const timeBonus = Math.max(0, 60 - this.timer);
+            const movesBonus = Math.max(0, 20 - this.moves) * 5;
+            this.score += basePoints + timeBonus + movesBonus;
+            
+            // Verificar si ganó
+            if (this.matchedPairs === this.emojis.length) {
+              this.endGame();
+            }
+          });
+        }, 500);
+      });
     } else {
-      // No hay match
-      setTimeout(() => {
-        card1.isFlipped = false;
-        card2.isFlipped = false;
-        this.flippedCards = [];
-      }, 1000);
+      // No hay match - voltear de nuevo
+      this.ngZone.runOutsideAngular(() => {
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            card1.isFlipped = false;
+            card2.isFlipped = false;
+            this.flippedCards = [];
+            this.isChecking = false;
+          });
+        }, 1000);
+      });
     }
   }
   
@@ -164,6 +175,7 @@ export class MemoryGame implements OnInit {
     this.gameStarted = false;
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
+      this.timerInterval = null;
     }
     this.saveHighScores();
   }
