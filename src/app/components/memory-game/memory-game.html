@@ -1,1 +1,112 @@
-<p>memory-game works!</p>
+<div class="game-container animate__animated animate__fadeIn">
+  <h1 class="game-title">🧠 Memory</h1>
+  
+  <!-- Panel de estadísticas -->
+  <div class="stats-board animate__animated animate__fadeInDown">
+    <div class="stat">
+      <span class="label">Tiempo</span>
+      <span class="value">{{ formatTime(timer) }}</span>
+    </div>
+    <div class="stat">
+      <span class="label">Movimientos</span>
+      <span class="value">{{ moves }}</span>
+    </div>
+    <div class="stat score-stat">
+      <span class="label">Puntos</span>
+      <span class="value">{{ score }}</span>
+    </div>
+    <div class="stat matches">
+      <span class="label">Pares</span>
+      <span class="value">{{ matchedPairs }}/8</span>
+    </div>
+  </div>
+
+  <!-- Grid de cartas -->
+  <div class="cards-grid" [class.game-started]="gameStarted">
+    @for (card of cards; track card.id) {
+      <div 
+        class="card-wrapper"
+        [class.flipped]="card.isFlipped"
+        [class.matched]="card.isMatched"
+        [class.disabled]="flippedCards.length >= 2 || !gameStarted"
+        (click)="flipCard(card)">
+        
+        <div class="card-inner">
+          <!-- Frente (emoji) -->
+          <div class="card-front">
+            <span class="emoji">{{ card.emoji }}</span>
+          </div>
+          
+          <!-- Reverso (question) -->
+          <div class="card-back">
+            <span class="question">?</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Pantalla de inicio -->
+  <div class="start-screen" *ngIf="!gameStarted && !gameCompleted">
+    <div class="start-content animate__animated animate__fadeIn">
+      <p>Encuentra todos los pares de emojis</p>
+      <p class="hint">💡 Menos movimientos = más puntos</p>
+      
+      <div class="high-scores" *ngIf="highScore > 0 || bestTime > 0">
+        <div *ngIf="highScore > 0" class="best-score">
+          🏆 Mejor puntuación: <strong>{{ highScore }}</strong>
+        </div>
+        <div *ngIf="bestTime > 0" class="best-time">
+          ⏱️ Mejor tiempo: <strong>{{ formatTime(bestTime) }}</strong>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" (click)="startGame()">
+        🎮 Jugar
+      </button>
+    </div>
+  </div>
+
+  <!-- Pantalla de victoria -->
+  <div class="victory-screen" *ngIf="gameCompleted">
+    <div class="victory-content animate__animated animate__bounceIn">
+      <h2>🎉 ¡Completado!</h2>
+      
+      <div class="final-stats">
+        <div class="stat-row">
+          <span>Puntuación</span>
+          <strong>{{ score }}</strong>
+        </div>
+        <div class="stat-row">
+          <span>Tiempo</span>
+          <strong>{{ formatTime(timer) }}</strong>
+        </div>
+        <div class="stat-row">
+          <span>Movimientos</span>
+          <strong>{{ moves }}</strong>
+        </div>
+      </div>
+      
+      <div class="records" *ngIf="score >= highScore || timer <= bestTime">
+        <p *ngIf="score >= highScore" class="new-record">🏆 ¡Nuevo Récord!</p>
+        <p *ngIf="timer <= bestTime && bestTime > 0" class="new-record">⚡ ¡Mejor Tiempo!</p>
+      </div>
+      
+      <div class="buttons">
+        <button class="btn btn-primary" (click)="newGame()">
+          🔄 Jugar de nuevo
+        </button>        
+        <button class="btn btn-secondary" (click)="resetGame()">
+          📊 Salir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones de control -->
+  <div class="controls" *ngIf="gameStarted">
+    <button class="btn btn-secondary" (click)="resetGame()">
+      🔄 Reiniciar
+    </button>
+  </div>
+</div>

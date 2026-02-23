@@ -1,1 +1,78 @@
-<p>snake-game works!</p>
+<div class="game-container animate__animated animate__fadeIn">
+  <h1 class="game-title">🐍 Snake</h1>
+  
+  <div class="score-board animate__animated animate__fadeInDown">
+    <div class="score">
+      <span class="label">Puntuación</span>
+      <span class="points">{{ score }}</span>
+    </div>
+    <div class="score high-score">
+      <span class="label">Récord</span>
+      <span class="points">{{ highScore }}</span>
+    </div>
+  </div>
+
+  <div class="game-status" [ngClass]="{ 'game-over': gameOver, 'running': gameRunning }">
+    <span *ngIf="!gameRunning && !gameOver" class="start-hint">
+      🎮 Pulsa <strong>ESPACIO</strong> o click en Iniciar
+    </span>
+    <span *ngIf="gameRunning" class="running-hint">
+      🐍 ¡Creciendo!
+    </span>
+    <span *ngIf="gameOver" class="game-over-text">
+      💀 ¡Game Over!
+    </span>
+  </div>
+
+  <div class="canvas-container animate__animated animate__zoomIn">
+    <canvas 
+      #gameCanvas 
+      class="game-canvas"
+      [class.running]="gameRunning"
+      [class.game-over]="gameOver">
+    </canvas>
+    
+    <!-- Overlay para game over -->
+    <div class="overlay" *ngIf="gameOver">
+      <div class="overlay-content">
+        <h2>💀 Game Over</h2>
+        <p>Puntuación: <strong>{{ score }}</strong></p>
+        <p *ngIf="score >= highScore && score > 0" class="new-record">🎉 ¡Nuevo Récord!</p>
+        <button class="btn" (click)="resetGame(); startGame();">Reiniciar</button>
+      </div>
+    </div>
+    
+    <!-- Overlay de inicio -->
+    <div class="overlay start-overlay" *ngIf="!gameRunning && !gameOver && score === 0">
+      <div class="overlay-content">
+        <h2>🐍 Snake</h2>
+        <p>Usa las <strong>flechas</strong> o <strong>WASD</strong></p>
+        <button class="btn" (click)="startGame()">Iniciar Juego</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-info animate__animated animate__fadeInUp">
+    <div class="control-key">↑</div>
+    <div class="control-key">←</div>
+    <div class="control-key">↓</div>
+    <div class="control-key">→</div>
+    <span class="control-text">> Moverse</span>
+  </div>
+
+  <div class="buttons">
+    <button 
+      class="btn animate__animated animate__fadeInUp" 
+      (click)="startGame()" 
+      [disabled]="gameRunning"
+      *ngIf="!gameRunning && !gameOver">
+      ▶️ Iniciar
+    </button>
+    <button 
+      class="btn secondary animate__animated animate__fadeInUp" 
+      (click)="resetGame()"
+      *ngIf="gameRunning || gameOver">
+      🔄 Reiniciar
+    </button>
+  </div>
+</div>
