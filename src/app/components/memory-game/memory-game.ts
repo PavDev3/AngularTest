@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { NgClass } from '@angular/common';
 
 interface Card {
   id: number;
@@ -10,7 +9,7 @@ interface Card {
 
 @Component({
   selector: 'app-memory-game',
-  imports: [NgClass],
+  imports: [],
   templateUrl: './memory-game.html',
   styleUrl: './memory-game.scss'
 })

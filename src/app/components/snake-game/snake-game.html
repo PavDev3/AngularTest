@@ -12,16 +12,22 @@
     </div>
   </div>
 
-  <div class="game-status" [ngClass]="{ 'game-over': gameOver, 'running': gameRunning }">
-    <span *ngIf="!gameRunning && !gameOver" class="start-hint">
-      🎮 Pulsa <strong>ESPACIO</strong> o click en Iniciar
-    </span>
-    <span *ngIf="gameRunning" class="running-hint">
-      🐍 ¡Creciendo!
-    </span>
-    <span *ngIf="gameOver" class="game-over-text">
-      💀 ¡Game Over!
-    </span>
+  <div class="game-status" [class.game-over]="gameOver" [class.running]="gameRunning">
+    @if (!gameRunning && !gameOver) {
+      <span class="start-hint">
+        🎮 Pulsa <strong>ESPACIO</strong> o click en Iniciar
+      </span>
+    }
+    @if (gameRunning) {
+      <span class="running-hint">
+        🐍 ¡Creciendo!
+      </span>
+    }
+    @if (gameOver) {
+      <span class="game-over-text">
+        💀 ¡Game Over!
+      </span>
+    }
   </div>
 
   <div class="canvas-container animate__animated animate__zoomIn">
@@ -33,23 +39,29 @@
     </canvas>
     
     <!-- Overlay para game over -->
-    <div class="overlay" *ngIf="gameOver">
-      <div class="overlay-content">
-        <h2>💀 Game Over</h2>
-        <p>Puntuación: <strong>{{ score }}</strong></p>
-        <p *ngIf="score >= highScore && score > 0" class="new-record">🎉 ¡Nuevo Récord!</p>
-        <button class="btn" (click)="resetGame(); startGame();">Reiniciar</button>
+    @if (gameOver) {
+      <div class="overlay">
+        <div class="overlay-content">
+          <h2>💀 Game Over</h2>
+          <p>Puntuación: <strong>{{ score }}</strong></p>
+          @if (score >= highScore && score > 0) {
+            <p class="new-record">🎉 ¡Nuevo Récord!</p>
+          }
+          <button class="btn" (click)="resetGame(); startGame();">Reiniciar</button>
+        </div>
       </div>
-    </div>
+    }
     
     <!-- Overlay de inicio -->
-    <div class="overlay start-overlay" *ngIf="!gameRunning && !gameOver && score === 0">
-      <div class="overlay-content">
-        <h2>🐍 Snake</h2>
-        <p>Usa las <strong>flechas</strong> o <strong>WASD</strong></p>
-        <button class="btn" (click)="startGame()">Iniciar Juego</button>
+    @if (!gameRunning && !gameOver && score === 0) {
+      <div class="overlay start-overlay">
+        <div class="overlay-content">
+          <h2>🐍 Snake</h2>
+          <p>Usa las <strong>flechas</strong> o <strong>WASD</strong></p>
+          <button class="btn" (click)="startGame()">Iniciar Juego</button>
+        </div>
       </div>
-    </div>
+    }
   </div>
 
   <div class="controls-info animate__animated animate__fadeInUp">
@@ -61,18 +73,20 @@
   </div>
 
   <div class="buttons">
-    <button 
-      class="btn animate__animated animate__fadeInUp" 
-      (click)="startGame()" 
-      [disabled]="gameRunning"
-      *ngIf="!gameRunning && !gameOver">
-      ▶️ Iniciar
-    </button>
-    <button 
-      class="btn secondary animate__animated animate__fadeInUp" 
-      (click)="resetGame()"
-      *ngIf="gameRunning || gameOver">
-      🔄 Reiniciar
-    </button>
+    @if (!gameRunning && !gameOver) {
+      <button 
+        class="btn animate__animated animate__fadeInUp" 
+        (click)="startGame()" 
+        [disabled]="gameRunning">
+        ▶️ Iniciar
+      </button>
+    }
+    @if (gameRunning || gameOver) {
+      <button 
+        class="btn secondary animate__animated animate__fadeInUp" 
+        (click)="resetGame()">
+        🔄 Reiniciar
+      </button>
+    }
   </div>
 </div>
